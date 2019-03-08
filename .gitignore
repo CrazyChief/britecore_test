@@ -8,3 +8,4 @@ __pycache__
 db_sqlite3
 /static
 media
+.env
