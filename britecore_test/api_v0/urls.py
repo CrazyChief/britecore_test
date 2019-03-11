@@ -6,4 +6,6 @@ router = DefaultRouter()
 
 # risks routes
 router.register(r'risk-types', RiskTypeViewSet)
-router.register(r'risks', RiskViewSet)
+router.register(r'risk', RiskViewSet)
+
+urlpatterns = router.urls
