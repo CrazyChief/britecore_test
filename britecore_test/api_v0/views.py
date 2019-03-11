@@ -5,7 +5,7 @@ from rest_framework import viewsets
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
-from .models import RiskType, Risk
+from risks.models import RiskType, Risk
 from .serializers import RiskTypeSerializer, RiskSerializer
 
 
