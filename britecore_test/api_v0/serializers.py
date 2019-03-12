@@ -26,7 +26,6 @@ class RiskTypeSerializer(serializers.ModelSerializer):
 
 class RiskSerializer(serializers.ModelSerializer):
 
-    risk_type = RiskTypeSerializer(required=True)
     risk_data = JSONSerializerField()
 
     class Meta:
