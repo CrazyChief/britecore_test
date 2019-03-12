@@ -10,3 +10,4 @@ db_sqlite3
 media
 .env
 dist
+webpack-stats.json
