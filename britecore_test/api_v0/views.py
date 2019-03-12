@@ -36,7 +36,7 @@ class RiskViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin,
         message = None
 
         try:
-            risk_type = int(self.request.data['riskType'])
+            risk_type = int(self.request.data['risk_type'])
         except ValueError:
             risk_type = ''
             message = _("Risk Type cannot be empty! "
