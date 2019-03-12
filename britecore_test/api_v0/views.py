@@ -10,7 +10,7 @@ from .serializers import RiskTypeSerializer, RiskSerializer
 
 
 class RiskTypeViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
-                      viewsets.GenericViewSet):
+                      mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """
     API endpoint for listing and creating RiskType objects
     """
@@ -21,8 +21,8 @@ class RiskTypeViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
 
 
 class RiskViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin,
-                  mixins.ListModelMixin, mixins.DestroyModelMixin,
-                  viewsets.GenericViewSet):
+                  mixins.ListModelMixin, mixins.RetrieveModelMixin,
+                  mixins.DestroyModelMixin, viewsets.GenericViewSet):
     """
     API endpoint for listing, creating, updating and destroying Risk objects
     """
