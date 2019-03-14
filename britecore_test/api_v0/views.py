@@ -3,6 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework.parsers import JSONParser
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from risks.models import RiskType, Risk
@@ -18,6 +19,7 @@ class RiskTypeViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
 
     queryset = RiskType.objects.all()
     parser_classes = (JSONParser,)
+    permission_classes = (AllowAny,)
     serializer_class = RiskTypeSerializer
 
 
@@ -30,6 +32,7 @@ class RiskViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin,
 
     queryset = Risk.objects.all()
     parser_classes = (JSONParser,)
+    permission_classes = (AllowAny,)
     serializer_class = RiskSerializer
 
     def perform_create(self, serializer):
