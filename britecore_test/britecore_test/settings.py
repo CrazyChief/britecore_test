@@ -57,6 +57,35 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# CORSHEADERS
+# ~~~~~~~~~~~~
+INSTALLED_APPS += ['corsheaders']
+MIDDLEWARE.insert(3, 'corsheaders.middleware.CorsMiddleware')
+# MIDDLEWARE.insert(7, 'corsheaders.middleware.CorsPostCsrfMiddleware')
+CORS_URLS_REGEX = r'^/api/v0/.*$'
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = (
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+)
+CORS_ALLOW_HEADERS = (
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'contentdisposition'
+)
+
 ROOT_URLCONF = 'britecore_test.urls'
 
 TEMPLATES = [
@@ -145,10 +174,9 @@ REST_FRAMEWORK = {
 
 WEBPACK_LOADER = {
     'DEFAULT': {
-        'CACHE': DEBUG,
         'BUNDLE_DIR_NAME': 'frontend/',  # must end with slash
         'STATS_FILE': os.path.join(
-            os.path.join(os.path.dirname(BASE_DIR), 'frontend'),
+            os.path.join(os.path.dirname(BASE_DIR)),
             'webpack-stats.json'),
     }
 }
