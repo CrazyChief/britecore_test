@@ -126,7 +126,7 @@
         <v-list-tile
           v-for="item in riskTypeItems"
           :key="item.id"
-          @click=""
+          @click="provideRiskType(item)"
         >
           <v-list-tile-content>
             <v-list-tile-title v-text="item.type_name"></v-list-tile-title>
@@ -183,6 +183,7 @@
 </template>
 
 <script>
+  import { eventHub } from '../main';
   import { APIService } from '../services/APIService';
 
   const apiService = new APIService();
@@ -376,7 +377,13 @@
             }
           }
         });
-      }
+      },
+      provideRiskType (riskType) {
+        this.riskType = Object.assign({}, riskType);
+        console.log(this.riskType);
+        eventHub.$emit('list-item-clicked', this.riskType);
+        this.riskType = {};
+      },
     },
     mounted () {
       this.getAllRiskTypes();

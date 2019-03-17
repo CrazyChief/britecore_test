@@ -9,6 +9,8 @@ Vue.use(VeeValidate);
 
 Vue.config.productionTip = false;
 
+export const eventHub = new Vue();
+
 new Vue({
   router,
   store,
