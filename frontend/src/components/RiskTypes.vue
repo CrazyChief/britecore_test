@@ -226,7 +226,7 @@
               this.loading = false;
             } else {
               this.error = data.error;
-              console.log(`Error ${this.error}`);
+              this.showSnackbar('red', `${this.error}`)
             }
           });
       },
