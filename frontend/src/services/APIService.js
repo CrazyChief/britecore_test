@@ -50,4 +50,59 @@ export class APIService {
         return response;
       });
   }
+
+  getRisks(id) {
+    const url = `${API_URL}risk-types/${id}/risks/`;
+    return Vue.axios.get(url)
+      .then((response) => {
+        return response;
+      })
+      .catch((error) => {
+        throw new Error(`ApiService ${error}`);
+      });
+  }
+
+  getRisk(riskId) {
+    const url = `${API_URL}risks/${riskId}/`;
+    return Vue.axios.get(url)
+      .then((response) => {
+        return response;
+      })
+      .catch((error) => {
+        throw new Error(`ApiService ${error}`);
+      });
+  }
+
+  createRisk(data) {
+    const url = `${API_URL}risks/`;
+    return Vue.axios.post(url, data)
+      .then((response) => {
+        return response;
+      })
+      .catch((error) => {
+        throw new Error(`ApiService ${error}`);
+      });
+  }
+
+  updateRisk(riskId, data) {
+    const url = `${API_URL}risks/${riskId}/`;
+    return Vue.axios.put(url, data)
+      .then((response) => {
+        return response;
+      })
+      .catch((error) => {
+        throw new Error(`ApiService ${error}`);
+      });
+  }
+
+  deleteRisk(riskId) {
+    const url = `${API_URL}risks/${riskId}/`;
+    return Vue.axios.delete(url, data)
+      .then((response) => {
+        return response;
+      })
+      .catch((error) => {
+        throw new Error(`ApiService ${error}`);
+      });
+  }
 }
