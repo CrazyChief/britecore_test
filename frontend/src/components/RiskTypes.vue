@@ -116,7 +116,8 @@
                 <v-btn color="blue darken-1" flat @click="close">Cancel</v-btn>
                 <v-btn
                   :disabled="errors.any()"
-                  color="blue darken-1" flat @click="handleSubmit">Save</v-btn>
+                  color="blue darken-1" flat
+                  @click="editedIndex === -1 ? handleSubmit : editDialog = true">Save</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -131,7 +132,7 @@
             <v-list-tile-title v-text="item.type_name"></v-list-tile-title>
           </v-list-tile-content>
             <v-btn fab dark small color="cyan"
-            @click="getSingleRiskType(item.id)">
+            @click="editItem(item)">
                 <v-icon dark>edit</v-icon>
             </v-btn>
 
@@ -145,6 +146,38 @@
         {{ snackbarText }}
         <v-btn dark flat @click="snackbar = false">Close</v-btn>
       </v-snackbar>
+
+      <v-dialog
+        v-model="editDialog">
+        <!--<template v-slot:activator="{ on }">-->
+          <v-card>
+            <v-card-title class="headline">Do you really want to make changes?</v-card-title>
+
+            <v-card-text>
+              Attention! After schema changes of current ({{ riskTypeName }}) Risk Type data provided in Risks
+              can be removed in case you remove old fields in schema. Do you really want to make changes?
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+
+              <v-btn
+                color="green darken-1"
+                flat="flat"
+                @click="editDialog = false">
+                Disagree
+              </v-btn>
+
+              <v-btn
+                color="green darken-1"
+                flat="flat"
+                @click="handleSubmit(riskTypeId)">
+                Agree
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        <!--</template>-->
+      </v-dialog>
     </v-card>
   </v-flex>
 </template>
@@ -159,12 +192,14 @@
     data () {
       return {
         dialog: false,
+        editDialog: false,
         loading: true,
         riskTypeItems: [],
         riskType: {},
         error: null,
         optionsDisabled: true,
         editedIndex: -1,
+        riskTypeId: null,
         riskTypeName: null,
         riskTypeActive: true,
         fieldsData: [
@@ -226,18 +261,29 @@
               this.loading = false;
             } else {
               this.error = data.error;
-              this.showSnackbar('red', `${this.error}`)
+              this.showSnackbar('red', `${this.error}`);
             }
           });
+      },
+      editItem (item) {
+        this.editedIndex = this.riskTypeItems.indexOf(item);
+        this.riskTypeId = item.id;
+        this.formsetRows = Object.assign([], item.schema);
+        this.riskTypeName = item.type_name;
+        this.riskTypeActive = item.is_active;
+        this.dialog = true
       },
       close () {
         // Closes dialog and pass initial data.
         this.dialog = false;
+        this.editDialog = false;
         setTimeout(() => {
           this.riskTypeName = null;
           this.riskTypeActive = true;
-          this.formsetRows = Object.assign({}, this.startFormsetRows);
-          this.editedIndex = -1
+          this.formsetRows = Object.assign([], this.startFormsetRows);
+          this.editedIndex = -1;
+          this.submitted = false;
+          this.$validator.errors.clear();
         }, 300)
       },
       addRow () {
@@ -279,25 +325,55 @@
           });
         }
       },
-      handleSubmit(e) {
-        // Makes form validation. Send post request to the server in case validation passed.
+      handleSubmit(id=null) {
+        // Makes form validation.
         this.submitted = true;
         this.$validator.validate().then(valid => {
+          console.log(valid);
           if (valid) {
             this.riskType = Object.assign(this.riskType, { 'type_name': this.riskTypeName });
             this.riskType = Object.assign(this.riskType, { 'is_active': this.riskTypeActive });
             this.riskType = Object.assign(this.riskType, { 'schema': this.formsetRows });
-            apiService.createRiskType(this.riskType)
-              .then((response) => {
-                console.log(response);
-                if (response.status === 201) {
-                  this.riskTypeItems.push(response.data);
-                  this.showSnackbar('success', `You successfully created ${response.data.type_name} risk type`);
-                  this.close();
-                }
-              }).catch((error) => {
-                this.showSnackbar('red', `${error}`);
-            });
+            if (id === null) {
+              // Send post request to the server in case validation passed.
+              apiService.createRiskType(this.riskType)
+                .then((response) => {
+                  if (response.status === 201) {
+                    this.riskTypeItems.push(response.data);
+                    this.showSnackbar('success', `You successfully created ${response.data.type_name} risk type`);
+                    this.close();
+                  }
+                }).catch((error) => {
+                  this.showSnackbar('red', `${error}`);
+                });
+            } else {
+              // Send put request to the server in case validation passed.
+              apiService.updateRiskType(id, this.riskType)
+                .then((response) => {
+                  if (response.status === 200) {
+                    this.showSnackbar('success', `You successfully updated ${response.data.type_name} risk type`);
+                    const updated = response.data;
+                    this.riskTypeItems.forEach((item, index) => {
+                      if (item.id === updated.id) {
+                        this.riskTypeItems[index] = Object.assign(
+                          this.riskTypeItems[index], { 'type_name': updated.type_name });
+                        this.riskTypeItems[index] = Object.assign(
+                          this.riskTypeItems[index], { 'schema': updated.schema });
+                        this.riskTypeItems[index] = Object.assign(
+                          this.riskTypeItems[index], { 'is_active': updated.is_active });
+                        return;
+                      }
+                    });
+                    this.close()
+                  }
+                }).catch((error) => {
+                  this.showSnackbar('red', `${error}`);
+                });
+            }
+          } else {
+            if (id !== null) {
+              this.editDialog = false;
+            }
           }
         });
       }
