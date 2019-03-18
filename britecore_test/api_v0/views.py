@@ -17,6 +17,8 @@ DEFAULT_SCHEMA_ITEM_KEYS = [
     'optionDisabled',
     'is_required',
 ]
+SCHEMA_ITEM_KEYS_UPDATE_1 = DEFAULT_SCHEMA_ITEM_KEYS + ['value']
+SCHEMA_ITEM_KEYS_UPDATE_2 = SCHEMA_ITEM_KEYS_UPDATE_1 + ['generatedOptions']
 
 
 class RiskTypeViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
@@ -42,13 +44,16 @@ class RiskTypeViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
             for item in data:
                 if isinstance(item, dict):
                     keys = [key for key in item.keys()]
-                    if (len(keys) > len(DEFAULT_SCHEMA_ITEM_KEYS)
-                            or len(keys) < len(DEFAULT_SCHEMA_ITEM_KEYS)):
+                    if (len(keys) != len(DEFAULT_SCHEMA_ITEM_KEYS)
+                            and len(keys) != len(SCHEMA_ITEM_KEYS_UPDATE_1)
+                            and len(keys) != len(SCHEMA_ITEM_KEYS_UPDATE_2)):
                         correct_schema = False
                         flag = 'Incorrect schema item!'
                     else:
                         for k in keys:
-                            if k not in DEFAULT_SCHEMA_ITEM_KEYS:
+                            if (k not in DEFAULT_SCHEMA_ITEM_KEYS
+                                    and k not in SCHEMA_ITEM_KEYS_UPDATE_1
+                                    and k not in SCHEMA_ITEM_KEYS_UPDATE_2):
                                 correct_schema = False
                                 flag = 'Incorrect schema item!'
                                 return {
@@ -73,6 +78,8 @@ class RiskTypeViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
 
     def perform_update(self, serializer):
         errors = self.make_check(self.request.data['schema'])
+        print('\n\n\nDEBUG')
+        print(errors)
         if errors['correct_schema'] is False:
             return Response({'Error': errors['message']})
         else:
