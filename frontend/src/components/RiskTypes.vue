@@ -219,7 +219,6 @@
           { text: 'Date field', value: 'date' },
           { text: 'Time field', value: 'time' },
           { text: 'File field', value: 'file' },
-          { text: 'Image field', value: 'image' },
           { text: 'URL field', value: 'url' },
           { text: 'Range (number) field', value: 'range' },
           { text: 'Number field', value: 'number' },
