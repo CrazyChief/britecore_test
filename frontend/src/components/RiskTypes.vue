@@ -114,10 +114,18 @@
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="blue darken-1" flat @click="close">Cancel</v-btn>
-                <v-btn
+                <template v-if="editedIndex === -1">
+                  <v-btn
                   :disabled="errors.any()"
                   color="blue darken-1" flat
-                  @click="riskTypeId === null ? handleSubmit : editDialog = true">Save</v-btn>
+                  @click="handleSubmit">Save</v-btn>
+                </template>
+                <template v-else>
+                  <v-btn
+                  :disabled="errors.any()"
+                  color="blue darken-1" flat
+                  @click="editDialog = true">Save</v-btn>
+                </template>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -171,7 +179,7 @@
               <v-btn
                 color="green darken-1"
                 flat="flat"
-                @click="handleSubmit(riskTypeId)">
+                @click="handleSubmit">
                 Agree
               </v-btn>
             </v-card-actions>
@@ -327,7 +335,7 @@
           });
         }
       },
-      handleSubmit(id=null) {
+      handleSubmit() {
         // Makes form validation.
         this.submitted = true;
         this.$validator.validate().then(valid => {
@@ -335,7 +343,7 @@
             this.riskType = Object.assign(this.riskType, { 'type_name': this.riskTypeName });
             this.riskType = Object.assign(this.riskType, { 'is_active': this.riskTypeActive });
             this.riskType = Object.assign(this.riskType, { 'schema': this.formsetRows });
-            if (id === null) {
+            if (this.riskTypeId === null) {
               // Send post request to the server in case validation passed.
               apiService.createRiskType(this.riskType)
                 .then((response) => {
@@ -349,7 +357,7 @@
                 });
             } else {
               // Send put request to the server in case validation passed.
-              apiService.updateRiskType(id, this.riskType)
+              apiService.updateRiskType(this.riskTypeId, this.riskType)
                 .then((response) => {
                   if (response.status === 200) {
                     this.showSnackbar('success', `You successfully updated ${response.data.type_name} risk type`);
@@ -362,7 +370,7 @@
                           this.riskTypeItems[index], { 'schema': updated.schema });
                         this.riskTypeItems[index] = Object.assign(
                           this.riskTypeItems[index], { 'is_active': updated.is_active });
-                        return;
+                        this.provideRiskType(this.riskTypeItems[index]);
                       }
                     });
                     this.close()
@@ -372,7 +380,7 @@
                 });
             }
           } else {
-            if (id !== null) {
+            if (this.riskTypeId !== null) {
               this.editDialog = false;
             }
           }
@@ -380,7 +388,6 @@
       },
       provideRiskType (riskType) {
         this.riskType = Object.assign({}, riskType);
-        console.log(this.riskType);
         eventHub.$emit('list-item-clicked', this.riskType);
         this.riskType = {};
       },
