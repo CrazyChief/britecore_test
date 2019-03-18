@@ -117,7 +117,7 @@
                 <v-btn
                   :disabled="errors.any()"
                   color="blue darken-1" flat
-                  @click="editedIndex === -1 ? handleSubmit : editDialog = true">Save</v-btn>
+                  @click="riskTypeId === null ? handleSubmit : editDialog = true">Save</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -279,6 +279,7 @@
         this.dialog = false;
         this.editDialog = false;
         setTimeout(() => {
+          this.riskTypeId = null;
           this.riskTypeName = null;
           this.riskTypeActive = true;
           this.formsetRows = Object.assign([], this.startFormsetRows);
@@ -330,7 +331,6 @@
         // Makes form validation.
         this.submitted = true;
         this.$validator.validate().then(valid => {
-          console.log(valid);
           if (valid) {
             this.riskType = Object.assign(this.riskType, { 'type_name': this.riskTypeName });
             this.riskType = Object.assign(this.riskType, { 'is_active': this.riskTypeActive });
