@@ -307,7 +307,8 @@
         // Check selected variant for field_type setting.
         // Provide available field options in case select, radio, checkbox were chosen.
         const value = form.field_type;
-        if ((value === 'select') || (value === 'checkbox') || (value === 'radio')) {
+        if ((value === 'select') || (value === 'checkbox') || (value === 'radio')
+          || (value === 'range')) {
           this.formsetRows[index].optionDisabled = false;
         } else {
           this.formsetRows[index].options = '';
