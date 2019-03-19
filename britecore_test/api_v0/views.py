@@ -97,8 +97,10 @@ class RiskViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin,
     serializer_class = RiskSerializer
 
     def get_queryset(self):
-        queryset = Risk.objects.filter(risk_type__id=self.kwargs['pk'])
-        return queryset
+        if 'fk' in self.kwargs:
+            return Risk.objects.filter(risk_type__id=self.kwargs['fk'])
+
+        return Risk.objects.all()
 
     def perform_create(self, serializer):
         risk = serializer.save()

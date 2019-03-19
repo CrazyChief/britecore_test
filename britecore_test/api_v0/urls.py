@@ -10,7 +10,7 @@ router.register(r'risk-types', RiskTypeViewSet)
 router.register(r'risk', RiskViewSet)
 
 urlpatterns = [
-    url(r'^risk-types/(?P<pk>\d+)/risk/',
+    url(r'^risk-types/(?P<fk>\d+)/risk/',
         RiskViewSet.as_view({'get': 'list'}))
 ]
 
