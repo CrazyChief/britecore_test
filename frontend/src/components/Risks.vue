@@ -243,7 +243,7 @@
 
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" flat @click="close">Cancel</v-btn>
+                <v-btn color="blue darken-1" flat @click="dialog = false">Cancel</v-btn>
                 <v-btn color="blue darken-1" flat
                  :disabled="errors.any()"
                  @click="handleSubmit">Save</v-btn>
@@ -405,21 +405,38 @@
         }
       },
 
+      editItem (item) {
+        this.editedIndex = this.risks.indexOf(item);
+        this.riskObj = Object.assign({}, item);
+        this.schema = this.riskObj.risk_data;
+        this.dialog = true
+      },
+
       close () {
-        this.dialog = false;
         setTimeout(() => {
-          this.schema.forEach((item, index) => {
-            // clear values on close
-            this.schema[index].value = null;
-          });
-          this.riskObj = {};
+          if (this.editedIndex === -1) {
+            this.schema.forEach((item, index) => {
+              // clear values on close
+              this.schema[index].value = null;
+            });
+            this.riskObj = {};
+          }
           this.editedIndex = -1
         }, 300)
       },
 
       handleSubmit () {
         if (this.editedIndex > -1) {
-          Object.assign(this.risks[this.editedIndex], this.riskObj);
+          apiService.updateRisk(this.riskObj.id, this.riskObj)
+            .then((response) => {
+              if (response.status === 200) {
+                Object.assign(this.risks[this.editedIndex], this.riskObj);
+                this.showSnackbar('success', `You successfully updated Risk item for "${this.typeName}" Risk Type!`);
+                this.dialog = false;
+              }
+            }).catch((error) => {
+              this.showSnackbar('red', `${error}`);
+          });
         } else {
           this.riskObj = Object.assign(this.riskObj, { 'risk_type': this.riskTypeId });
           this.riskObj = Object.assign(this.riskObj, { 'risk_data': this.schema });
@@ -428,7 +445,7 @@
               if (response.status === 201) {
                 this.risks.push(response.data);
                 this.showSnackbar('success', `You successfully created Risk item!`);
-                this.close();
+                this.dialog = false;
               }
             }).catch((error) => {
               this.showSnackbar('red', `${error}`);
