@@ -1,5 +1,5 @@
 <template>
-  <v-flex xs5>
+  <v-flex xs12 md3>
     <v-card color="primary">
       <v-toolbar flat color="green">
         <v-toolbar-title>Risk Types</v-toolbar-title>
