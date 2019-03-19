@@ -3,7 +3,7 @@
     <v-card color="primary">
       <div>
         <v-toolbar flat color="green">
-          <v-toolbar-title>Risks</v-toolbar-title>
+          <v-toolbar-title>{{ panelTitle }}</v-toolbar-title>
           <v-divider
             class="mx-2"
             inset
@@ -22,227 +22,229 @@
               </v-card-title>
 
               <v-card-text>
-                <v-container grid-list-md>
-                  <v-layout wrap>
-                    <v-flex xs12 sm6 md4 v-for="(field, index) in schema">
-                      <template v-if="field.field_type === 'text'">
-                        <v-text-field
-                          v-model="field.value"
-                          :name="field.field_name"
-                          :label="makeLabel(field.field_name)"
-                          :type="field.field_type"
-                          :error-messages="errors.first(field.field_name)"
-                          v-validate="field.is_required ? 'required' : ''"
-                        ></v-text-field>
-                      </template>
-                      <template v-if="field.field_type === 'email'">
-                        <v-text-field
-                          v-model="field.value"
-                          :name="field.field_name"
-                          :label="makeLabel(field.field_name)"
-                          :type="field.field_type"
-                          :error-messages="errors.first(field.field_name)"
-                          v-validate="field.is_required ? 'required|email' : ''"
-                        ></v-text-field>
-                      </template>
-                      <template v-if="field.field_type === 'tel'">
-                        <v-text-field
-                          v-model="field.value"
-                          :name="field.field_name"
-                          :label="makeLabel(field.field_name)"
-                          :type="field.field_type"
-                          :mask="'phone'"
-                          :error-messages="errors.first(field.field_name)"
-                          v-validate="field.is_required ? 'required' : ''"
-                        ></v-text-field>
-                      </template>
-                      <template v-if="field.field_type === 'date'">
-                        <v-menu
-                          v-model="dateWidget"
-                          :close-on-content-click="false"
-                          :nudge-right="40"
-                          lazy
-                          transition="scale-transition"
-                          offset-y
-                          full-width
-                          min-width="290px">
-                          <template v-slot:activator="{ on }">
-                            <v-text-field
-                              v-model="field.value"
-                              :name="field.field_name"
-                              :label="makeLabel(field.field_name)"
-                              :error-messages="errors.first(field.field_name)"
-                              v-validate="field.is_required ? 'required' : ''"
-                              prepend-icon="event"
-                              v-on="on"
-                            ></v-text-field>
-                          </template>
-                          <v-date-picker color="success" v-model="field.value" @input="dateWidget = false"></v-date-picker>
-                        </v-menu>
-                      </template>
-                      <template v-if="field.field_type === 'time'">
-                        <v-menu
-                          ref="menu"
-                          v-model="timeWidget"
-                          :close-on-content-click="false"
-                          :nudge-right="40"
-                          :return-value.sync="field.value"
-                          lazy
-                          transition="scale-transition"
-                          offset-y
-                          full-width
-                          max-width="290px"
-                          min-width="290px">
-                          <template v-slot:activator="{ on }">
-                            <v-text-field
-                              v-model="field.value"
-                              :name="field.field_name"
-                              :label="makeLabel(field.field_name)"
-                              :error-messages="errors.first(field.field_name)"
-                              v-validate="field.is_required ? 'required' : ''"
-                              prepend-icon="access_time"
-                              readonly
-                              v-on="on"
-                            ></v-text-field>
-                          </template>
-                          <v-time-picker
-                            v-if="timeWidget"
+                <v-form @submit.prevent="handleSubmit">
+                  <v-container grid-list-md>
+                    <v-layout wrap>
+                      <v-flex xs12 sm6 md4 v-for="(field, index) in schema">
+                        <template v-if="field.field_type === 'text'">
+                          <v-text-field
                             v-model="field.value"
-                            color="success"
-                            full-width
-                            @click:minute="$refs.menu[0].save(field.value)"
-                          ></v-time-picker>
-                        </v-menu>
-                      </template>
-                      <template v-if="field.field_type === 'file'">
-                        <v-text-field
-                          v-model="field.value"
-                          :name="field.field_name"
-                          :label="makeLabel(field.field_name)"
-                          :type="field.field_type"
-                          :error-messages="errors.first(field.field_name)"
-                          v-validate="field.is_required ? 'required' : ''"
-                        ></v-text-field>
-                      </template>
-                      <template v-if="field.field_type === 'url'">
-                        <v-text-field
-                          v-model="field.value"
-                          :name="field.field_name"
-                          :label="makeLabel(field.field_name)"
-                          :type="field.field_type"
-                          :error-messages="errors.first(field.field_name)"
-                          v-validate="field.is_required ? 'required|url' : ''"
-                        ></v-text-field>
-                      </template>
-                      <template v-if="field.field_type === 'range'">
-                        <v-layout>
-                          <v-flex
-                            shrink
-                            style="width: 60px">
-                            <v-text-field
-                              v-model="field.value[0]"
-                              class="mt-0"
-                              hide-details
-                              single-line
-                              type="number"
-                              :name="`${field.field_name}_min`"
-                              v-validate="field.is_required ? 'required' : ''"
-                            ></v-text-field>
-                          </v-flex>
-
-                          <v-flex>
-                            <v-range-slider
-                              v-model="field.value"
-                              :name="field.field_name"
-                              :label="makeLabel(field.field_name)"
-                              :max="field.generatedOptions[1].value"
-                              :min="field.generatedOptions[0].value"
-                              :step="1"
-                            ></v-range-slider>
-                          </v-flex>
-
-                          <v-flex
-                            shrink
-                            style="width: 60px">
-                            <v-text-field
-                              v-model="field.value[1]"
-                              class="mt-0"
-                              hide-details
-                              single-line
-                              type="number"
-                              :name="`${field.field_name}_max`"
-                              v-validate="field.is_required ? 'required' : ''"
-                            ></v-text-field>
-                          </v-flex>
-                        </v-layout>
-                      </template>
-                      <template v-if="field.field_type === 'number'">
-                        <v-text-field
-                          v-model="field.value"
-                          :name="field.field_name"
-                          :label="makeLabel(field.field_name)"
-                          :type="field.field_type"
-                          :error-messages="errors.first(field.field_name)"
-                          v-validate="field.is_required ? 'required' : ''"
-                        ></v-text-field>
-                      </template>
-                      <template v-if="field.field_type === 'checkbox'">
-                        <label class="v-label theme--light">{{ field.field_name }}</label>
-                        <template v-for="(checkBox, i) in field.generatedOptions">
-                          <v-checkbox
-                            v-model="checkBox.value"
-                            :label="makeLabel(checkBox.text)"
-                            :name="`${field.field_name}_${i}`"
+                            :name="field.field_name"
+                            :label="makeLabel(field.field_name)"
+                            :type="field.field_type"
+                            :error-messages="errors.first(field.field_name)"
                             v-validate="field.is_required ? 'required' : ''"
-                            hide-details
-                          ></v-checkbox>
+                          ></v-text-field>
                         </template>
-                      </template>
-                      <template v-if="field.field_type === 'radio'">
-                        <v-radio-group
-                          v-model="field.value"
-                          :label="makeLabel(field.field_name)"
-                          :name="field.field_name"
-                          v-validate="field.is_required ? 'required' : ''">
-                          <v-radio
-                            v-for="n in field.generatedOptions"
-                            :key="n.value"
-                            :label="makeLabel(n.text)"
-                            :value="n.value"
-                          ></v-radio>
-                        </v-radio-group>
-                      </template>
+                        <template v-if="field.field_type === 'email'">
+                          <v-text-field
+                            v-model="field.value"
+                            :name="field.field_name"
+                            :label="makeLabel(field.field_name)"
+                            :type="field.field_type"
+                            :error-messages="errors.first(field.field_name)"
+                            v-validate="field.is_required ? 'required|email' : ''"
+                          ></v-text-field>
+                        </template>
+                        <template v-if="field.field_type === 'tel'">
+                          <v-text-field
+                            v-model="field.value"
+                            :name="field.field_name"
+                            :label="makeLabel(field.field_name)"
+                            :type="field.field_type"
+                            :mask="'phone'"
+                            :error-messages="errors.first(field.field_name)"
+                            v-validate="field.is_required ? 'required' : ''"
+                          ></v-text-field>
+                        </template>
+                        <template v-if="field.field_type === 'date'">
+                          <v-menu
+                            v-model="dateWidget"
+                            :close-on-content-click="false"
+                            :nudge-right="40"
+                            lazy
+                            transition="scale-transition"
+                            offset-y
+                            full-width
+                            min-width="290px">
+                            <template v-slot:activator="{ on }">
+                              <v-text-field
+                                v-model="field.value"
+                                :name="field.field_name"
+                                :label="makeLabel(field.field_name)"
+                                :error-messages="errors.first(field.field_name)"
+                                v-validate="field.is_required ? 'required' : ''"
+                                prepend-icon="event"
+                                v-on="on"
+                              ></v-text-field>
+                            </template>
+                            <v-date-picker color="success" v-model="field.value" @input="dateWidget = false"></v-date-picker>
+                          </v-menu>
+                        </template>
+                        <template v-if="field.field_type === 'time'">
+                          <v-menu
+                            ref="menu"
+                            v-model="timeWidget"
+                            :close-on-content-click="false"
+                            :nudge-right="40"
+                            :return-value.sync="field.value"
+                            lazy
+                            transition="scale-transition"
+                            offset-y
+                            full-width
+                            max-width="290px"
+                            min-width="290px">
+                            <template v-slot:activator="{ on }">
+                              <v-text-field
+                                v-model="field.value"
+                                :name="field.field_name"
+                                :label="makeLabel(field.field_name)"
+                                :error-messages="errors.first(field.field_name)"
+                                v-validate="field.is_required ? 'required' : ''"
+                                prepend-icon="access_time"
+                                readonly
+                                v-on="on"
+                              ></v-text-field>
+                            </template>
+                            <v-time-picker
+                              v-if="timeWidget"
+                              v-model="field.value"
+                              color="success"
+                              full-width
+                              @click:minute="$refs.menu[0].save(field.value)"
+                            ></v-time-picker>
+                          </v-menu>
+                        </template>
+                        <template v-if="field.field_type === 'file'">
+                          <v-text-field
+                            v-model="field.value"
+                            :name="field.field_name"
+                            :label="makeLabel(field.field_name)"
+                            :type="field.field_type"
+                            :error-messages="errors.first(field.field_name)"
+                            v-validate="field.is_required ? 'required' : ''"
+                          ></v-text-field>
+                        </template>
+                        <template v-if="field.field_type === 'url'">
+                          <v-text-field
+                            v-model="field.value"
+                            :name="field.field_name"
+                            :label="makeLabel(field.field_name)"
+                            :type="field.field_type"
+                            :error-messages="errors.first(field.field_name)"
+                            v-validate="field.is_required ? 'required|url' : ''"
+                          ></v-text-field>
+                        </template>
+                        <template v-if="field.field_type === 'range'">
+                          <v-layout>
+                            <v-flex
+                              shrink
+                              style="width: 60px">
+                              <v-text-field
+                                v-model="field.value[0]"
+                                class="mt-0"
+                                hide-details
+                                single-line
+                                type="number"
+                                :name="`${field.field_name}_min`"
+                                v-validate="field.is_required ? 'required' : ''"
+                              ></v-text-field>
+                            </v-flex>
 
-                      <template v-if="field.field_type === 'select'">
-                        <v-select
-                          v-model="field.value"
-                          :items="field.generatedOptions"
-                          :name="field.field_name"
-                          :label="makeLabel(field.field_name)"
-                          :type="field.field_type"
-                          :error-messages="errors.first(field.field_name)"
-                          v-validate="field.is_required ? 'required' : ''"
-                        ></v-select>
-                      </template>
+                            <v-flex>
+                              <v-range-slider
+                                v-model="field.value"
+                                :name="field.field_name"
+                                :label="makeLabel(field.field_name)"
+                                :max="field.generatedOptions[1].value"
+                                :min="field.generatedOptions[0].value"
+                                :step="1"
+                              ></v-range-slider>
+                            </v-flex>
 
-                      <template v-if="field.field_type === 'textarea'">
-                        <v-textarea
-                          v-model="field.value"
-                          :name="field.field_name"
-                          :label="makeLabel(field.field_name)"
-                          :error-messages="errors.first(field.field_name)"
-                          v-validate="field.is_required ? 'required' : ''"
-                        ></v-textarea>
-                      </template>
-                    </v-flex>
-                  </v-layout>
-                </v-container>
+                            <v-flex
+                              shrink
+                              style="width: 60px">
+                              <v-text-field
+                                v-model="field.value[1]"
+                                class="mt-0"
+                                hide-details
+                                single-line
+                                type="number"
+                                :name="`${field.field_name}_max`"
+                                v-validate="field.is_required ? 'required' : ''"
+                              ></v-text-field>
+                            </v-flex>
+                          </v-layout>
+                        </template>
+                        <template v-if="field.field_type === 'number'">
+                          <v-text-field
+                            v-model="field.value"
+                            :name="field.field_name"
+                            :label="makeLabel(field.field_name)"
+                            :type="field.field_type"
+                            :error-messages="errors.first(field.field_name)"
+                            v-validate="field.is_required ? 'required' : ''"
+                          ></v-text-field>
+                        </template>
+                        <template v-if="field.field_type === 'checkbox'">
+                          <label class="v-label theme--light">{{ field.field_name }}</label>
+                          <template v-for="(checkBox, i) in field.generatedOptions">
+                            <v-checkbox
+                              v-model="checkBox.value"
+                              :label="makeLabel(checkBox.text)"
+                              :name="`${field.field_name}_${i}`"
+                              v-validate="field.is_required ? 'required' : ''"
+                              hide-details
+                            ></v-checkbox>
+                          </template>
+                        </template>
+                        <template v-if="field.field_type === 'radio'">
+                          <v-radio-group
+                            v-model="field.value"
+                            :label="makeLabel(field.field_name)"
+                            :name="field.field_name"
+                            v-validate="field.is_required ? 'required' : ''">
+                            <v-radio
+                              v-for="n in field.generatedOptions"
+                              :key="n.value"
+                              :label="makeLabel(n.text)"
+                              :value="n.value"
+                            ></v-radio>
+                          </v-radio-group>
+                        </template>
+
+                        <template v-if="field.field_type === 'select'">
+                          <v-select
+                            v-model="field.value"
+                            :items="field.generatedOptions"
+                            :name="field.field_name"
+                            :label="makeLabel(field.field_name)"
+                            :type="field.field_type"
+                            :error-messages="errors.first(field.field_name)"
+                            v-validate="field.is_required ? 'required' : ''"
+                          ></v-select>
+                        </template>
+
+                        <template v-if="field.field_type === 'textarea'">
+                          <v-textarea
+                            v-model="field.value"
+                            :name="field.field_name"
+                            :label="makeLabel(field.field_name)"
+                            :error-messages="errors.first(field.field_name)"
+                            v-validate="field.is_required ? 'required' : ''"
+                          ></v-textarea>
+                        </template>
+                      </v-flex>
+                    </v-layout>
+                  </v-container>
+                </v-form>
               </v-card-text>
 
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="blue darken-1" flat @click="close">Cancel</v-btn>
-                <v-btn color="blue darken-1" flat @click="save">Save</v-btn>
+                <v-btn color="blue darken-1" flat @click="handleSubmit">Save</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -273,6 +275,15 @@
           </template>
         </v-data-table>
       </div>
+
+      <v-snackbar
+        v-model="snackbar"
+        :color="snackbarColor"
+        :multi-line="true"
+        :timeout="6000">
+        {{ snackbarText }}
+        <v-btn dark flat @click="snackbar = false">Close</v-btn>
+      </v-snackbar>
   </v-card>
 </v-flex>
 </template>
@@ -293,20 +304,28 @@
       riskTypeId: null,
       typeName: null,
       schema: [],
+      defaultSchema: [],
       fieldValue: { value: null },
       rangeFieldValue: { value: [] },
       generatedOptions: { generatedOptions: [] },
       isActive: null,
       headers: [],
       risks: [],
+      riskObj: {},
       editedIndex: -1,
+      snackbar: false,
+      snackbarText: null,
+      snackbarColor: null,
     }),
 
     computed: {
       formTitle () {
         return this.editedIndex === -1 ?
           `New Risk Item for "${this.typeName}" Risk Type` :
-          'Edit Risk Item for "${this.typeName}" Risk Type'
+          `Edit Risk Item for "${this.typeName}" Risk Type`
+      },
+      panelTitle () {
+        return this.typeName === null ? 'Risks' : `Risks for "${this.typeName}" Risk Type`
       }
     },
 
@@ -354,6 +373,7 @@
             }
           }
         });
+        this.defaultSchema = Object.assign({}, this.schema);
         this.isActive = is_active;
         this.makeHeaders();
         this.getRisks();
@@ -361,6 +381,15 @@
     },
 
     methods: {
+      showSnackbar (color, message) {
+        // Trigger snackbar with appropriate message.
+        this.snackbar = false;
+        setTimeout(() => {
+          this.snackbarText = message;
+          this.snackbarColor = color;
+          this.snackbar = true;
+        }, 250);
+      },
       getRisks () {
         if (this.riskTypeId) {
           apiService.getRisks(this.riskTypeId)
