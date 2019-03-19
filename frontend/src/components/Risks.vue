@@ -244,7 +244,9 @@
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="blue darken-1" flat @click="close">Cancel</v-btn>
-                <v-btn color="blue darken-1" flat @click="handleSubmit">Save</v-btn>
+                <v-btn color="blue darken-1" flat
+                 :disabled="errors.any()"
+                 @click="handleSubmit">Save</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -254,7 +256,7 @@
           :items="risks"
           class="elevation-1 max-table-width">
           <template v-slot:items="props">
-            <td class="text-xs-right">{{ props.item.value }}</td>
+            <td class="text-xs-center" v-for="item in props.item.risk_data">{{ item.value }}</td>
             <td class="justify-center layout px-0">
               <v-icon small class="mr-2" @click="editItem(props.item)">
                 edit
@@ -304,7 +306,6 @@
       riskTypeId: null,
       typeName: null,
       schema: [],
-      defaultSchema: [],
       fieldValue: { value: null },
       rangeFieldValue: { value: [] },
       generatedOptions: { generatedOptions: [] },
@@ -316,6 +317,7 @@
       snackbar: false,
       snackbarText: null,
       snackbarColor: null,
+      error: null,
     }),
 
     computed: {
@@ -373,7 +375,6 @@
             }
           }
         });
-        this.defaultSchema = Object.assign({}, this.schema);
         this.isActive = is_active;
         this.makeHeaders();
         this.getRisks();
@@ -394,8 +395,44 @@
         if (this.riskTypeId) {
           apiService.getRisks(this.riskTypeId)
             .then((data) => {
-              console.log(data);
+              if (data.status === 200) {
+                this.risks = Object.assign([], data.data.results);
+              } else {
+                this.error = data.error;
+                this.showSnackbar('red', `${this.error}`);
+              }
             });
+        }
+      },
+
+      close () {
+        this.dialog = false;
+        setTimeout(() => {
+          this.schema.forEach((item, index) => {
+            // clear values on close
+            this.schema[index].value = null;
+          });
+          this.riskObj = {};
+          this.editedIndex = -1
+        }, 300)
+      },
+
+      handleSubmit () {
+        if (this.editedIndex > -1) {
+          Object.assign(this.risks[this.editedIndex], this.riskObj);
+        } else {
+          this.riskObj = Object.assign(this.riskObj, { 'risk_type': this.riskTypeId });
+          this.riskObj = Object.assign(this.riskObj, { 'risk_data': this.schema });
+          apiService.createRisk(this.riskObj)
+            .then((response) => {
+              if (response.status === 201) {
+                this.risks.push(response.data);
+                this.showSnackbar('success', `You successfully created Risk item!`);
+                this.close();
+              }
+            }).catch((error) => {
+              this.showSnackbar('red', `${error}`);
+          });
         }
       },
 
