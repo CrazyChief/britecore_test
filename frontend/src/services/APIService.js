@@ -52,7 +52,7 @@ export class APIService {
   }
 
   getRisks(id) {
-    const url = `${API_URL}risk-types/${id}/risks/`;
+    const url = `${API_URL}risk-types/${id}/risk/`;
     return Vue.axios.get(url)
       .then((response) => {
         return response;
@@ -63,7 +63,7 @@ export class APIService {
   }
 
   getRisk(riskId) {
-    const url = `${API_URL}risks/${riskId}/`;
+    const url = `${API_URL}risk/${riskId}/`;
     return Vue.axios.get(url)
       .then((response) => {
         return response;
@@ -74,7 +74,7 @@ export class APIService {
   }
 
   createRisk(data) {
-    const url = `${API_URL}risks/`;
+    const url = `${API_URL}risk/`;
     return Vue.axios.post(url, data)
       .then((response) => {
         return response;
@@ -85,7 +85,7 @@ export class APIService {
   }
 
   updateRisk(riskId, data) {
-    const url = `${API_URL}risks/${riskId}/`;
+    const url = `${API_URL}risk/${riskId}/`;
     return Vue.axios.put(url, data)
       .then((response) => {
         return response;
@@ -96,7 +96,7 @@ export class APIService {
   }
 
   deleteRisk(riskId) {
-    const url = `${API_URL}risks/${riskId}/`;
+    const url = `${API_URL}risk/${riskId}/`;
     return Vue.axios.delete(url, data)
       .then((response) => {
         return response;
