@@ -78,8 +78,6 @@ class RiskTypeViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
 
     def perform_update(self, serializer):
         errors = self.make_check(self.request.data['schema'])
-        print('\n\n\nDEBUG')
-        print(errors)
         if errors['correct_schema'] is False:
             return Response({'Error': errors['message']})
         else:
@@ -97,6 +95,10 @@ class RiskViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin,
     parser_classes = (JSONParser,)
     permission_classes = (AllowAny,)
     serializer_class = RiskSerializer
+
+    def get_queryset(self):
+        queryset = Risk.objects.filter(risk_type__id=self.kwargs['pk'])
+        return queryset
 
     def perform_create(self, serializer):
         risk = serializer.save()
