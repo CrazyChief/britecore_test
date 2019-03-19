@@ -290,6 +290,20 @@
           this.riskTypeName = null;
           this.riskTypeActive = true;
           this.formsetRows = Object.assign([], this.startFormsetRows);
+          this.formsetRows.forEach((item, index) => {
+            let objKeys = Object.keys(this.formsetRows[index]);
+            objKeys.forEach((key, j) => {
+              if (typeof this.formsetRows[index][key] === 'string') {
+                this.formsetRows[index][key] = '';
+              } else if (typeof this.formsetRows[index][key] === 'boolean') {
+                if (key === 'optionDisabled') {
+                  this.formsetRows[index][key] = true;
+                } else if (key === 'is_required') {
+                  this.formsetRows[index][key] = false;
+                }
+              }
+            });
+          });
           this.editedIndex = -1;
           this.submitted = false;
           this.$validator.errors.clear();
