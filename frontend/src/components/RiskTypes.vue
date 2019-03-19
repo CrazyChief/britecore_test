@@ -351,6 +351,10 @@
       },
       handleSubmit() {
         // Makes form validation.
+        if (this.formsetRows.length === 0) {
+          this.showSnackbar('red', 'Risk Type schema cannot be empty! Provide some schema for Risk Type creation!');
+          return;
+        }
         this.submitted = true;
         this.$validator.validate().then(valid => {
           if (valid) {
