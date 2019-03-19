@@ -465,8 +465,9 @@
             } else {
               temp = item.field_name;
             }
-            this.headers.push({ text: temp, value: item.field_name, sortable: true, align: 'center' });
+            this.headers.push({ text: temp, value: item.field_name, align: 'center' });
           });
+          this.headers.push({ text: 'Actions', value: 'actions', align: 'center' });
           return this.headers;
         }
       },
