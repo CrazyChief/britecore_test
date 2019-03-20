@@ -516,8 +516,10 @@
       displayTextValue (item) {
         let result = null;
         if (item.field_type === 'textarea') {
-          result = item.value.substring(0, 20);
-          return `${result}...`;
+          if (item.value !== null) {
+            result = item.value.substring(0, 20);
+            return `${result}...`;
+          }
         } else if (item.field_type === 'radio') {
           item.generatedOptions.forEach((part, index) => {
             if (item.value === part.value) {
