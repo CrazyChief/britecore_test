@@ -256,7 +256,7 @@
           :items="risks"
           class="elevation-1 max-table-width">
           <template v-slot:items="props">
-            <td class="text-xs-center" v-for="item in props.item.risk_data">{{ item.value }}</td>
+            <td class="text-xs-center" v-for="item in props.item.risk_data">{{ displayTextValue(item) }}</td>
             <td class="justify-center layout px-0">
               <v-icon small class="mr-2" @click="editItem(props.item)">
                 edit
@@ -501,6 +501,34 @@
           options.push({ text: item, value: index });
         });
         return options;
+      },
+
+      displayTextValue (item) {
+        let result = null;
+        if (item.field_type === 'textarea') {
+          result = item.value.substring(0, 20);
+          return `${result}...`;
+        } else if (item.field_type === 'radio') {
+          item.generatedOptions.forEach((part, index) => {
+            if (item.value === part.value) {
+              result = part.text;
+              return result;
+            }
+          });
+        } else if (item.field_type === 'checkbox') {
+          let temp = '';
+          item.generatedOptions.forEach((part, index) => {
+            if (part.value === true) {
+              temp += `${part.text}, `;
+            }
+            return result;
+          });
+          result = temp;
+        } else {
+          result = item.value;
+          return result;
+        }
+        return result;
       },
     }
   }
