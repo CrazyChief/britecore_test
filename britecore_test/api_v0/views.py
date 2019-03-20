@@ -7,18 +7,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from risks.models import RiskType, Risk
+from .constants import (DEFAULT_SCHEMA_ITEM_KEYS, SCHEMA_ITEM_KEYS_UPDATE_1,
+                        SCHEMA_ITEM_KEYS_UPDATE_2)
 from .serializers import RiskTypeSerializer, RiskSerializer
-
-
-DEFAULT_SCHEMA_ITEM_KEYS = [
-    'field_name',
-    'field_type',
-    'options',
-    'optionDisabled',
-    'is_required',
-]
-SCHEMA_ITEM_KEYS_UPDATE_1 = DEFAULT_SCHEMA_ITEM_KEYS + ['value']
-SCHEMA_ITEM_KEYS_UPDATE_2 = SCHEMA_ITEM_KEYS_UPDATE_1 + ['generatedOptions']
 
 
 class RiskTypeViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
@@ -44,16 +35,16 @@ class RiskTypeViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
             for item in data:
                 if isinstance(item, dict):
                     keys = [key for key in item.keys()]
-                    if (len(keys) != len(DEFAULT_SCHEMA_ITEM_KEYS)
-                            and len(keys) != len(SCHEMA_ITEM_KEYS_UPDATE_1)
-                            and len(keys) != len(SCHEMA_ITEM_KEYS_UPDATE_2)):
+                    if (len(keys) != len(DEFAULT_SCHEMA_ITEM_KEYS) and
+                            len(keys) != len(SCHEMA_ITEM_KEYS_UPDATE_1) and
+                            len(keys) != len(SCHEMA_ITEM_KEYS_UPDATE_2)):
                         correct_schema = False
                         flag = 'Incorrect schema item!'
                     else:
                         for k in keys:
-                            if (k not in DEFAULT_SCHEMA_ITEM_KEYS
-                                    and k not in SCHEMA_ITEM_KEYS_UPDATE_1
-                                    and k not in SCHEMA_ITEM_KEYS_UPDATE_2):
+                            if (k not in DEFAULT_SCHEMA_ITEM_KEYS and
+                                    k not in SCHEMA_ITEM_KEYS_UPDATE_1 and
+                                    k not in SCHEMA_ITEM_KEYS_UPDATE_2):
                                 correct_schema = False
                                 flag = 'Incorrect schema item!'
                                 return {
