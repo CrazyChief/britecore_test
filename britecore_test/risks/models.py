@@ -1,5 +1,7 @@
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch.dispatcher import receiver
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -38,3 +40,58 @@ class Risk(models.Model):
     class Meta:
         verbose_name = _('Risk')
         verbose_name_plural = _('Risks')
+
+
+@receiver(post_save, sender=RiskType)
+def schema_update(sender, instance, **kwargs):
+    if kwargs['created'] is False:
+        risks = Risk.objects.filter(risk_type__id=instance.id)
+        for risk in risks:
+            schema_len = len(instance.schema)
+            risk_data_len = len(risk.risk_data)
+            r = risk.risk_data
+            if schema_len == risk_data_len:
+                for i, part in enumerate(instance.schema):
+                    # makes updates to schema in case comparison is False
+                    if part['field_name'] != r[i]['field_name']:
+                        r[i]['field_name'] = part['field_name']
+                    if part['field_type'] != r[i]['field_type']:
+                        r[i]['field_type'] = part['field_type']
+                        r[i]['value'] = None
+                        r[i]['optionDisabled'] = part['optionDisabled']
+                        r[i]['is_required'] = part['is_required']
+                        r[i]['options'] = part['options']
+            elif schema_len != risk_data_len:
+                temp_schema = list(instance.schema)
+                if schema_len > risk_data_len:
+                    for i, part in enumerate(temp_schema):
+                        if i > risk_data_len - 1:
+                            # add new part to existent schema
+                            part.update({'value': None})
+                            r.append(part)
+                        else:
+                            if part['field_name'] != r[i]['field_name']:
+                                r[i]['field_name'] = part['field_name']
+                            if part['field_type'] != r[i]['field_type']:
+                                r[i]['field_type'] = part['field_type']
+                                r[i]['value'] = None
+                                r[i]['optionDisabled'] = part['optionDisabled']
+                                r[i]['is_required'] = part['is_required']
+                                r[i]['options'] = part['options']
+                elif schema_len < risk_data_len:
+                    for i, part in enumerate(temp_schema):
+                        if i + 1 == risk_data_len - 1:
+                            # remove items not listed in new risk type schema
+                            r = r[:max(
+                                risk_data_len - 1, 0)] + r[risk_data_len:]
+                            risk.risk_data = r
+                        else:
+                            if part['field_name'] != r[i]['field_name']:
+                                r[i]['field_name'] = part['field_name']
+                            if part['field_type'] != r[i]['field_type']:
+                                r[i]['field_type'] = part['field_type']
+                                r[i]['value'] = None
+                                r[i]['optionDisabled'] = part['optionDisabled']
+                                r[i]['is_required'] = part['is_required']
+                                r[i]['options'] = part['options']
+            risk.save()
