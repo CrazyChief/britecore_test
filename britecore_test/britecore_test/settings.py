@@ -29,7 +29,12 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DJANGO_DEBUG', False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '0.0.0.0',
+    '127.0.0.1',
+    'pet42wogc1.execute-api.us-east-2.amazonaws.com'
+]
 
 
 # Application definition
@@ -61,7 +66,7 @@ MIDDLEWARE = [
 # ~~~~~~~~~~~~
 INSTALLED_APPS += ['corsheaders']
 MIDDLEWARE.insert(3, 'corsheaders.middleware.CorsMiddleware')
-# MIDDLEWARE.insert(7, 'corsheaders.middleware.CorsPostCsrfMiddleware')
+MIDDLEWARE.insert(7, 'corsheaders.middleware.CorsPostCsrfMiddleware')
 CORS_URLS_REGEX = r'^/api/v0/.*$'
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
@@ -151,15 +156,15 @@ USE_TZ = True
 # Media files (images, etc.)
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = (
-    os.path.join(os.path.dirname(BASE_DIR), 'dist'),
+    os.path.join(BASE_DIR, 'dist'),
 )
 
 # REST Framework settings
@@ -176,7 +181,7 @@ WEBPACK_LOADER = {
     'DEFAULT': {
         'BUNDLE_DIR_NAME': 'frontend/',  # must end with slash
         'STATS_FILE': os.path.join(
-            os.path.join(os.path.dirname(BASE_DIR)),
+            os.path.join(BASE_DIR),
             'webpack-stats.json'),
     }
 }

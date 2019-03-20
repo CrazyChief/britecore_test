@@ -6,7 +6,7 @@ __pycache__
 *.pyc
 .DS_Store
 db_sqlite3
-/static
+/britecore_test/static
 media
 .env
 dist
