@@ -97,7 +97,7 @@ export class APIService {
 
   deleteRisk(riskId) {
     const url = `${API_URL}risk/${riskId}/`;
-    return Vue.axios.delete(url, data)
+    return Vue.axios.delete(url)
       .then((response) => {
         return response;
       })

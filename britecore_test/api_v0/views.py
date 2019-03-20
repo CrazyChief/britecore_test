@@ -86,7 +86,7 @@ class RiskTypeViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
 
 class RiskViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin,
                   mixins.ListModelMixin, mixins.RetrieveModelMixin,
-                  viewsets.GenericViewSet):
+                  mixins.DestroyModelMixin, viewsets.GenericViewSet):
     """
     API endpoint for listing, creating, updating and destroying Risk objects
     """

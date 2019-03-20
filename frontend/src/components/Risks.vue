@@ -412,6 +412,22 @@
         this.dialog = true
       },
 
+      deleteItem (item) {
+        const index = this.risks.indexOf(item);
+
+        if (confirm('Are you sure you want to delete this Risk?')) {
+          apiService.deleteRisk(item.id)
+            .then((response) => {
+              if (response.status === 204) {
+                this.showSnackbar('success', 'You successfully deleted Risk item!');
+                this.risks.splice(index, 1);
+              }
+            }).catch((error) => {
+              this.showSnackbar('red', `${error}`);
+          });
+        }
+      },
+
       close () {
         setTimeout(() => {
           if (this.editedIndex === -1) {
