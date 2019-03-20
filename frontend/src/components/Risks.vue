@@ -427,6 +427,11 @@
 
       handleSubmit () {
         if (this.editedIndex > -1) {
+          this.riskObj.risk_data.forEach((item, index) => {
+            if (item.field_type === 'file') {
+              this.riskObj.risk_data[index].value = null;
+            }
+          });
           apiService.updateRisk(this.riskObj.id, this.riskObj)
             .then((response) => {
               if (response.status === 200) {
@@ -438,6 +443,11 @@
               this.showSnackbar('red', `${error}`);
           });
         } else {
+          this.schema.forEach((item, index) => {
+            if (item.field_type === 'file') {
+              this.schema[index].value = null;
+            }
+          });
           this.riskObj = Object.assign(this.riskObj, { 'risk_type': this.riskTypeId });
           this.riskObj = Object.assign(this.riskObj, { 'risk_data': this.schema });
           apiService.createRisk(this.riskObj)
