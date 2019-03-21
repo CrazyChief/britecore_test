@@ -12,6 +12,6 @@
         },
         "use_precompiled_packages": true,
         "delete_local_zip": false,
-        "exclude": [".idea", ".venv", "node_modules"]
+        "exclude": [".idea", ".venv", "node_modules", "dist", "static"]
     }
 }
