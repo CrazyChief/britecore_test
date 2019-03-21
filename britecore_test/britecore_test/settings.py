@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'api_v0',
     'risks',
+    'django_s3_storage',
 ]
 
 MIDDLEWARE = [
@@ -161,7 +162,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-STATIC_URL = '/static/'
+# STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'dist'),
@@ -185,3 +186,28 @@ WEBPACK_LOADER = {
             'webpack-stats.json'),
     }
 }
+
+# DJANGO S3 STORAGE SETTINGS
+# The AWS region to connect to.
+AWS_REGION = env('AWS_REGION')
+
+# The AWS access key to use.
+AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+
+# The AWS secret access key to use.
+AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+AWS_S3_BUCKET_AUTH_STATIC = False
+AWS_S3_MAX_AGE_SECONDS_STATIC = "94608000"
+
+YOUR_S3_BUCKET = "britecore-test-static"
+
+STATICFILES_STORAGE = "django_s3_storage.storage.StaticS3Storage"
+AWS_S3_BUCKET_NAME_STATIC = YOUR_S3_BUCKET
+
+# These next two lines will serve the static files directly
+# from the s3 bucket
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % YOUR_S3_BUCKET
+STATIC_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
+
+# OR...if you create a fancy custom domain for your static files use:
+#AWS_S3_PUBLIC_URL_STATIC = "https://static.zappaguide.com/"
