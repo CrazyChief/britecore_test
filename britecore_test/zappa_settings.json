@@ -1,0 +1,17 @@
+{
+    "dev": {
+        "aws_region": "us-east-2",
+        "django_settings": "britecore_test.settings",
+        "profile_name": "default",
+        "project_name": "britecore-test",
+        "runtime": "python3.6",
+        "s3_bucket": "zappa-sxjkjah0x",
+        "vpc_config" : {
+            "SubnetIds": [ "subnet-fa330a92","subnet-0467b848" ],
+            "SecurityGroupIds": [ "sg-05c8bb21bcb71fd62" ]
+        },
+        "use_precompiled_packages": true,
+        "delete_local_zip": false,
+        "exclude": [".idea", ".venv", "node_modules", "dist", "static"]
+    }
+}

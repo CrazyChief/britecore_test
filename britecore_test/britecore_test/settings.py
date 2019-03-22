@@ -29,7 +29,12 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DJANGO_DEBUG', False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '0.0.0.0',
+    '127.0.0.1',
+    'pet42wogc1.execute-api.us-east-2.amazonaws.com'
+]
 
 
 # Application definition
@@ -41,6 +46,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'webpack_loader',
+    'rest_framework',
+    'api_v0',
+    'risks',
+    'django_s3_storage',
+    'axe',
 ]
 
 MIDDLEWARE = [
@@ -53,12 +64,41 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# CORSHEADERS
+# ~~~~~~~~~~~~
+INSTALLED_APPS += ['corsheaders']
+MIDDLEWARE.insert(3, 'corsheaders.middleware.CorsMiddleware')
+MIDDLEWARE.insert(7, 'corsheaders.middleware.CorsPostCsrfMiddleware')
+CORS_URLS_REGEX = r'^/api/v0/.*$'
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = (
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+)
+CORS_ALLOW_HEADERS = (
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'contentdisposition'
+)
+
 ROOT_URLCONF = 'britecore_test.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -115,7 +155,60 @@ USE_L10N = True
 USE_TZ = True
 
 
+# Media files (images, etc.)
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-STATIC_URL = '/static/'
+# STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'dist'),
+)
+
+# REST Framework settings
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
+}
+
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'frontend/',  # must end with slash
+        'STATS_FILE': os.path.join(
+            os.path.join(BASE_DIR),
+            'webpack-stats.json'),
+    }
+}
+
+# DJANGO S3 STORAGE SETTINGS
+# The AWS region to connect to.
+AWS_REGION = env('AWS_REGION')
+
+# The AWS access key to use.
+AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+
+# The AWS secret access key to use.
+AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+AWS_S3_BUCKET_AUTH_STATIC = False
+AWS_S3_MAX_AGE_SECONDS_STATIC = "94608000"
+
+YOUR_S3_BUCKET = "britecore-test-static"
+
+STATICFILES_STORAGE = "django_s3_storage.storage.StaticS3Storage"
+AWS_S3_BUCKET_NAME_STATIC = YOUR_S3_BUCKET
+
+# These next two lines will serve the static files directly
+# from the s3 bucket
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % YOUR_S3_BUCKET
+STATIC_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
+
+# OR...if you create a fancy custom domain for your static files use:
+#AWS_S3_PUBLIC_URL_STATIC = "https://static.zappaguide.com/"
