@@ -118,14 +118,7 @@ WSGI_APPLICATION = 'britecore_test.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'PROVIDE_YOUR_OWN_ENGINE:D',
-        'NAME': 'PROVIDE_YOUR_OWN_NAME:D',
-        'USER': 'PROVIDE_YOUR_OWN_USER:D',
-        'PASSWORD': 'PROVIDE_YOUR_OWN_PASSWORD:D',
-        'HOST': 'PROVIDE_YOUR_OWN_HOST:D',
-        'PORT': 'PROVIDE_YOUR_OWN_PORT:D',
-    }
+    'default': env.db('DATABASE_URL', default='postgres:///britecore_test'),
 }
 
 
