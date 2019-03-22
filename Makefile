@@ -29,8 +29,8 @@ environment:
 	@echo "Do not forget to edit it at $(shell pwd)/.env"
 
 requirements:
-	@echo "Installing base $(PROJECT_NAME) requirements"
-	@$(PIP) install -qr requirements/base.txt
+	@echo "Installing $(PROJECT_NAME) requirements"
+	@$(PIP) install -qr requirements.txt
 
 collectstatic:
 	@echo "Collecting static files for Django site"
@@ -65,3 +65,11 @@ clean:
 
 test:
 	@$(ENVIRONMENT)$(PYTEST) -sx --pep8 $(PROJECT_NAME)/$(app) || true
+
+serve:
+	@echo "Start serving frontend..."
+	@yarn --cwd frontend/ serve
+
+build:
+	@echo "Start building frontend..."
+	@yarn --cwd frontend/ build
