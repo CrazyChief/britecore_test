@@ -5,6 +5,7 @@ from rest_framework.test import APITestCase
 
 from risks.models import RiskType, Risk
 
+from .constants import TEST_SCHEMA, TEST_RISK_DATA
 from .serializers import RiskTypeSerializer, RiskSerializer
 
 
@@ -19,18 +20,8 @@ class RiskTypeTests(APITestCase):
 
     def create_risk_type(self):
         risk_type = RiskType.objects.create(
-            type_name='Automobile',
-            schema={
-                'first_name': 'input;text',
-                'last_name': 'input;text',
-                'email': 'input;email',
-                'phone': 'input;tel',
-                'mark': 'input;text',
-                'license_plate_number': 'input;text',
-                'driver_license_number': 'input;text',
-                'description': 'textarea',
-                'due_date': 'input;date',
-            }
+            type_name='New Risk Type',
+            schema=TEST_SCHEMA
         )
         risk_type.save()
 
@@ -42,23 +33,13 @@ class RiskTypeTests(APITestCase):
         """
         url = r'/api/v0/risk-types/'
         data = {
-            'type_name': 'Automobile',
-            'schema': {
-                'first_name': 'input;text',
-                'last_name': 'input;text',
-                'email': 'input;email',
-                'phone': 'input;tel',
-                'mark': 'input;text',
-                'license_plate_number': 'input;text',
-                'driver_license_number': 'input;text',
-                'description': 'textarea',
-                'due_date': 'input;date',
-            }
+            'type_name': 'New Risk Type',
+            'schema': TEST_SCHEMA
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(RiskType.objects.count(), 1)
-        self.assertEqual(RiskType.objects.get().type_name, 'Automobile')
+        self.assertEqual(RiskType.objects.get().type_name, 'New Risk Type')
 
     def test_can_get_risk_type_details(self):
         """
@@ -90,17 +71,20 @@ class RiskTypeTests(APITestCase):
         Create RiskType object and try to update its schema.
         """
         risk_type = self.create_risk_type()
-        risk_type.schema['due_date'] = 'input;datetime-local'
+        for r in risk_type.schema:
+            if r['field_type'] == 'text':
+                r['field_type'] = 'textarea'
+                break
+
         response = self.client.put(
             f'/api/v0/risk-types/{risk_type.id}/',
             data={
-                'type_name': 'Automobile',
+                'type_name': 'New Risk Type',
                 'schema': risk_type.schema,
             }, format='json')
         risk_type.refresh_from_db()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(risk_type.schema.get('due_date'),
-                         'input;datetime-local')
+        self.assertEqual(risk_type.schema[0].get('field_type'), 'textarea')
 
 
 class RiskTests(APITestCase):
@@ -114,18 +98,8 @@ class RiskTests(APITestCase):
 
     def create_risk_type(self):
         risk_type = RiskType.objects.create(
-            type_name='Automobile',
-            schema={
-                'first_name': 'input;text',
-                'last_name': 'input;text',
-                'email': 'input;email',
-                'phone': 'input;tel',
-                'mark': 'input;text',
-                'license_plate_number': 'input;text',
-                'driver_license_number': 'input;text',
-                'description': 'textarea',
-                'due_date': 'input;date',
-            }
+            type_name='New Risk Type',
+            schema=TEST_SCHEMA
         )
         risk_type.save()
 
@@ -133,24 +107,9 @@ class RiskTests(APITestCase):
 
     def create_risk(self):
         risk_type = self.create_risk_type()
-        faker = Faker()
-        keys_list = [k for k in risk_type.schema]
-        values_list = {
-            'first_name': faker.first_name(),
-            'last_name': faker.last_name(),
-            'email': faker.email(),
-            'phone': faker.numerify('#########'),
-            'mark': faker.lexify('???'),
-            'license_plate_number': faker.license_plate(),
-            'driver_license_number': faker.numerify('#########'),
-            'description': faker.lexify('???' * 100),
-            'due_date': f'{date.today() + timedelta(days=160)}'
-        }
         risk = Risk.objects.create(
             risk_type=risk_type,
-            risk_data={
-                key: values_list[key] for i, key in enumerate(keys_list)
-            }
+            risk_data=TEST_RISK_DATA
         )
         risk.save()
 
@@ -164,53 +123,28 @@ class RiskTests(APITestCase):
         """
         risk_type_url = r'/api/v0/risk-types/'
         risk_type_data = {
-            'type_name': 'Automobile',
-            'schema': {
-                'first_name': 'input;text',
-                'last_name': 'input;text',
-                'email': 'input;email',
-                'phone': 'input;tel',
-                'mark': 'input;text',
-                'license_plate_number': 'input;text',
-                'driver_license_number': 'input;text',
-                'description': 'textarea',
-                'due_date': 'input;date',
-            }
+            'type_name': 'New Risk Type',
+            'schema': TEST_SCHEMA
         }
         response = self.client.post(
             risk_type_url, risk_type_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(RiskType.objects.count(), 1)
-        self.assertEqual(RiskType.objects.get().type_name, 'Automobile')
+        self.assertEqual(RiskType.objects.get().type_name, 'New Risk Type')
 
         risk_url = r'/api/v0/risk/'
 
         risk_type = RiskType.objects.get()
-        faker = Faker()
-
-        keys = [k for k in risk_type.schema]
-        values_list = {
-            'first_name': faker.first_name(),
-            'last_name': faker.last_name(),
-            'email': faker.email(),
-            'phone': faker.numerify('#########'),
-            'mark': faker.lexify('???'),
-            'license_plate_number': faker.license_plate(),
-            'driver_license_number': faker.numerify('#########'),
-            'description': faker.lexify('???' * 100),
-            'due_date': date.today() + timedelta(days=160)
-        }
         risk_data = {
             'risk_type': risk_type.id,
-            'risk_data': {
-                key: values_list[key] for i, key in enumerate(keys)
-            }
+            'risk_data': TEST_RISK_DATA
         }
         response = self.client.post(
             risk_url, risk_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Risk.objects.count(), 1)
-        self.assertEqual(Risk.objects.get().risk_type.type_name, 'Automobile')
+        self.assertEqual(Risk.objects.get().risk_type.type_name,
+                         'New Risk Type')
 
     def test_can_get_risk_details(self):
         """
@@ -236,7 +170,10 @@ class RiskTests(APITestCase):
         risk = self.create_risk()
         risk_type = RiskType.objects.get(id=risk.risk_type.id)
         new_first_name = faker.first_name()
-        risk.risk_data['first_name'] = new_first_name
+        for r in risk.risk_data:
+            if r['field_name'] == 'first_name':
+                r['value'] = new_first_name
+                break
         response = self.client.put(
             f'/api/v0/risk/{risk.id}/',
             data={
@@ -245,4 +182,4 @@ class RiskTests(APITestCase):
             }, format='json')
         risk.refresh_from_db()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(risk.risk_data.get('first_name'), new_first_name)
+        self.assertEqual(risk.risk_data[0].get('value'), new_first_name)

@@ -18,6 +18,7 @@ class RiskTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = RiskType
         fields = (
+            'id',
             'type_name',
             'schema',
             'is_active',
@@ -31,6 +32,7 @@ class RiskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Risk
         fields = (
+            'id',
             'risk_type',
             'risk_data',
         )
