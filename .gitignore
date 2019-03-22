@@ -11,4 +11,4 @@ media
 .env
 dist
 webpack-stats.json
-zappa_settings.json
+britecore_test/zappa_settings.json

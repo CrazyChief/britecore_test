@@ -10,8 +10,15 @@
             "SubnetIds": [ "subnet-fa330a92","subnet-0467b848" ],
             "SecurityGroupIds": [ "sg-05c8bb21bcb71fd62" ]
         },
+        "environment_variables": {
+            "SECRET_KEY": "YOUR_SECRET_KEY",
+            "DATABASE_URL": "psql://user:pass@rbd_url:5432/db_names",
+            "AWS_REGION": "YOUR_REGION",
+            "AWS_ACCESS_KEY_ID": "YOUR_KEY",
+            "AWS_SECRET_ACCESS_KEY": "YOUR_SECRET_KEY",
+        },
         "use_precompiled_packages": true,
-        "delete_local_zip": false,
+        "delete_local_zip": true,
         "exclude": [".idea", ".venv", "node_modules", "dist", "static"]
     }
 }
