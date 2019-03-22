@@ -66,6 +66,10 @@ clean:
 test:
 	@$(ENVIRONMENT)$(PYTEST) -sx --pep8 $(PROJECT_NAME)/$(app) || true
 
+install-f:
+	@echo "Start to install frontend dependencies..."
+	@yarn --cwd frontend/ install
+
 serve:
 	@echo "Start serving frontend..."
 	@yarn --cwd frontend/ serve
