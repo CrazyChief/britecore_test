@@ -11,3 +11,4 @@ media
 .env
 dist
 webpack-stats.json
+zappa_settings.json
