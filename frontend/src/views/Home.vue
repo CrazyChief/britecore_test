@@ -11,7 +11,7 @@
                     </v-card-title>
 
                     <v-card-actions>
-                        <v-btn block flat color="green" href="/dashboard">Go to Dashboard</v-btn>
+                        <v-btn block flat color="green" href="/dev/dashboard/">Go to Dashboard</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-flex>
