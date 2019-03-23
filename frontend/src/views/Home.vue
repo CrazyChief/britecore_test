@@ -11,7 +11,7 @@
                     </v-card-title>
 
                     <v-card-actions>
-                        <v-btn block flat color="green" href="/dev/dashboard/">Go to Dashboard</v-btn>
+                        <v-btn block flat color="green" :href="link">Go to Dashboard</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-flex>
@@ -20,8 +20,12 @@
 </template>
 
 <script>
+    const isProdEnv = process.env.NODE_ENV === 'production';
     export default {
-        name: "Home"
+      name: "Home",
+      data: () => ({
+        link: isProdEnv ? "/dev/dashboard/" : "/dashboard/"
+      })
     }
 </script>
 

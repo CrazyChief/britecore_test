@@ -5,16 +5,18 @@ import Dashboard from "@/views/Dashboard";
 
 Vue.use(VueRouter);
 
+const isProdEnv = process.env.NODE_ENV === 'production';
+
 const router =  new VueRouter({
   mode: "history",
   routes: [
     {
-      path: "/dev/",
+      path: isProdEnv ? "/dev/" : "/",
       name: "home",
       component: Home
     },
     {
-      path: "/dev/dashboard/",
+      path: isProdEnv ? "/dev/dashboard/" : "/dashboard/",
       name: "dashboard",
       component: Dashboard
     }
