@@ -397,7 +397,7 @@
                   if (response.status === 201) {
                     this.riskTypeItems.push(response.data);
                     this.showSnackbar('success', `You successfully created ${response.data.type_name} risk type`);
-                    this.provideRiskType(this.riskType);
+                    this.provideRiskType(response.data);
                     this.dialog = false;
                   }
                 }).catch((error) => {
