@@ -42,6 +42,19 @@ class Risk(models.Model):
         verbose_name_plural = _('Risks')
 
 
+def update_pieces(part, risk_field):
+    # Update dada in appropriate field
+    if part['field_name'] != risk_field['field_name']:
+        risk_field['field_name'] = part['field_name']
+    if part['field_type'] != risk_field['field_type']:
+        risk_field['field_type'] = part['field_type']
+        risk_field['value'] = None
+        risk_field['optionDisabled'] = part['optionDisabled']
+        risk_field['is_required'] = part['is_required']
+        risk_field['options'] = part['options']
+    return risk_field
+
+
 @receiver(post_save, sender=RiskType)
 def schema_update(sender, instance, **kwargs):
     if kwargs['created'] is False:
@@ -50,48 +63,40 @@ def schema_update(sender, instance, **kwargs):
             schema_len = len(instance.schema)
             risk_data_len = len(risk.risk_data)
             r = risk.risk_data
-            if schema_len == risk_data_len:
+            if schema_len >= risk_data_len:
+                print('schema_len > risk_data_len cond')
+                i = 0
+                while i <= schema_len - 1:
+                    part = instance.schema[i]
+                    if i > risk_data_len - 1:
+                        # add new part to existent schema
+                        part = instance.schema[i]
+                        part.update({'value': None})
+                        r.append(part)
+                        i += 1
+                        risk_data_len += 1
+                    else:
+                        if part['field_id'] != r[i]['field_id']:
+                            # Remove field from risk_data
+                            r.pop(i)
+                            risk_data_len -= 1
+                        else:
+                            r[i] = update_pieces(part, r[i])
+                            i += 1
+            elif schema_len < risk_data_len:
+                keys = [key['field_id'] for key in instance.schema]
+                i = 0
+                while i <= risk_data_len - 1:
+                    if i == risk_data_len:
+                        break
+                    if r[i]['field_id'] not in keys:
+                        # Remove field from risk_data
+                        r.pop(i)
+                        risk_data_len -= 1
+                    else:
+                        i += 1
                 for i, part in enumerate(instance.schema):
-                    # makes updates to schema in case comparison is False
-                    if part['field_name'] != r[i]['field_name']:
-                        r[i]['field_name'] = part['field_name']
-                    if part['field_type'] != r[i]['field_type']:
-                        r[i]['field_type'] = part['field_type']
-                        r[i]['value'] = None
-                        r[i]['optionDisabled'] = part['optionDisabled']
-                        r[i]['is_required'] = part['is_required']
-                        r[i]['options'] = part['options']
-            elif schema_len != risk_data_len:
-                temp_schema = list(instance.schema)
-                if schema_len > risk_data_len:
-                    for i, part in enumerate(temp_schema):
-                        if i > risk_data_len - 1:
-                            # add new part to existent schema
-                            part.update({'value': None})
-                            r.append(part)
-                        else:
-                            if part['field_name'] != r[i]['field_name']:
-                                r[i]['field_name'] = part['field_name']
-                            if part['field_type'] != r[i]['field_type']:
-                                r[i]['field_type'] = part['field_type']
-                                r[i]['value'] = None
-                                r[i]['optionDisabled'] = part['optionDisabled']
-                                r[i]['is_required'] = part['is_required']
-                                r[i]['options'] = part['options']
-                elif schema_len < risk_data_len:
-                    for i, part in enumerate(temp_schema):
-                        if i + 1 == risk_data_len - 1:
-                            # remove items not listed in new risk type schema
-                            r = r[:max(
-                                risk_data_len - 1, 0)] + r[risk_data_len:]
-                            risk.risk_data = r
-                        else:
-                            if part['field_name'] != r[i]['field_name']:
-                                r[i]['field_name'] = part['field_name']
-                            if part['field_type'] != r[i]['field_type']:
-                                r[i]['field_type'] = part['field_type']
-                                r[i]['value'] = None
-                                r[i]['optionDisabled'] = part['optionDisabled']
-                                r[i]['is_required'] = part['is_required']
-                                r[i]['options'] = part['options']
+                    if part['field_id'] == r[i]['field_id']:
+                        update_pieces(part, r[i])
+            risk.risk_data = r
             risk.save()
