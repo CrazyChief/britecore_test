@@ -229,11 +229,11 @@
           ],
         startFormsetRows: [
           // initial data
-          { field_name: '', field_type: '', options: '', optionDisabled: true, is_required: false }
+          { field_id: null, field_name: '', field_type: '', options: '', optionDisabled: true, is_required: false }
         ],
         formsetRows: [
           // initial data
-          { field_name: '', field_type: '', options: '', optionDisabled: true, is_required: false }
+          { field_id: null, field_name: '', field_type: '', options: '', optionDisabled: true, is_required: false }
         ],
         snackbar: false,
         snackbarText: null,
@@ -248,6 +248,9 @@
     },
     watch: {
       dialog (val) {
+        val || this.close()
+      },
+      editDialog (val) {
         val || this.close()
       }
     },
@@ -302,6 +305,7 @@
                   this.formsetRows[index][key] = false;
                 }
               }
+              this.formsetRows[index].field_id = null;
             });
           });
           this.editedIndex = -1;
@@ -311,7 +315,7 @@
       },
       addRow () {
         this.formsetRows.push(
-          { field_name: '', field_type: '', options: '', optionDisabled: true, is_required: false });
+          { field_id: null, field_name: '', field_type: '', options: '', optionDisabled: true, is_required: false });
       },
       removeRow (index) {
         this.formsetRows.splice(index, 1);
@@ -349,6 +353,30 @@
           });
         }
       },
+      provideIDs(update=false) {
+        // Provide field id to each row in schema
+        if (update === false) {
+          this.formsetRows.forEach((item, index) => {
+            if (item.field_id === null) {
+              this.formsetRows[index].field_id = `field_${index}`;
+            }
+          });
+        } else {
+          let lastId = null;
+          for (let i = this.formsetRows.length - 1; i > 0; i--) {
+            if ((this.formsetRows[i].field_id !== undefined) && (this.formsetRows[i].field_id !== null)) {
+              lastId = +this.formsetRows[i].field_id.split('_')[1];
+              break;
+            }
+          }
+          if (lastId === null) lastId = 1;
+          this.formsetRows.forEach((item, index) => {
+            if (item.field_id === null) {
+              this.formsetRows[index].field_id = `field_${++lastId}`;
+            }
+          });
+        }
+      },
       handleSubmit() {
         // Makes form validation.
         if (this.formsetRows.length === 0) {
@@ -362,18 +390,21 @@
             this.riskType = Object.assign(this.riskType, { 'is_active': this.riskTypeActive });
             this.riskType = Object.assign(this.riskType, { 'schema': this.formsetRows });
             if (this.riskTypeId === null) {
+              this.provideIDs();
               // Send post request to the server in case validation passed.
               apiService.createRiskType(this.riskType)
                 .then((response) => {
                   if (response.status === 201) {
                     this.riskTypeItems.push(response.data);
                     this.showSnackbar('success', `You successfully created ${response.data.type_name} risk type`);
-                    this.close();
+                    this.provideRiskType(this.riskType);
+                    this.dialog = false;
                   }
                 }).catch((error) => {
                   this.showSnackbar('red', `${error}`);
                 });
             } else {
+              this.provideIDs(true);
               // Send put request to the server in case validation passed.
               apiService.updateRiskType(this.riskTypeId, this.riskType)
                 .then((response) => {
@@ -391,7 +422,7 @@
                         this.provideRiskType(this.riskTypeItems[index]);
                       }
                     });
-                    this.close()
+                    this.editDialog = false;
                   }
                 }).catch((error) => {
                   this.showSnackbar('red', `${error}`);

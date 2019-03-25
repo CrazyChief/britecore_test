@@ -24,17 +24,10 @@ class RiskTypeViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     permission_classes = (AllowAny,)
     serializer_class = RiskTypeSerializer
 
-    def make_check(self, data, name=None):
+    def make_check(self, data):
         # Make validation for schema
         correct_schema = True
         flag = None
-        if name is not None:
-            if len(RiskType.objects.filter(type_name__icontains=name)) > 0:
-                return {
-                    'correct_schema': correct_schema,
-                    'name_exists': True,
-                    'message': 'Risk Type with this name already exists!'
-                }
         if isinstance(data, list) is False:
             correct_schema = False
             flag = 'Schema must be wrapped by Array!'
@@ -47,6 +40,7 @@ class RiskTypeViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
                             len(keys) != len(SCHEMA_ITEM_KEYS_UPDATE_2)):
                         correct_schema = False
                         flag = 'Incorrect schema item!'
+                        break
                     else:
                         for k in keys:
                             if (k not in DEFAULT_SCHEMA_ITEM_KEYS and
@@ -54,35 +48,27 @@ class RiskTypeViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
                                     k not in SCHEMA_ITEM_KEYS_UPDATE_2):
                                 correct_schema = False
                                 flag = 'Incorrect schema item!'
-                                return {
-                                    'correct_schema': correct_schema,
-                                    'name_exists': False,
-                                    'message': flag
-                                }
+                                break
                     return {
                         'correct_schema': correct_schema,
-                        'name_exists': False,
                         'message': flag
                     }
         return {
             'correct_schema': correct_schema,
-            'name_exists': False,
             'message': flag
         }
 
     def perform_create(self, serializer):
-        errors = self.make_check(
-            self.request.data['schema'], self.request.data['type_name'])
-        if errors['correct_schema'] is False or errors['name_exists'] is True:
+        errors = self.make_check(self.request.data['schema'])
+        if errors['correct_schema'] is False:
             return Response({'Error': errors['message']},
                             status=status.HTTP_400_BAD_REQUEST)
         else:
             serializer.save()
 
     def perform_update(self, serializer):
-        errors = self.make_check(
-            self.request.data['schema'], self.request.data['type_name'])
-        if errors['correct_schema'] is False or errors['name_exists'] is True:
+        errors = self.make_check(self.request.data['schema'])
+        if errors['correct_schema'] is False:
             return Response({'Error': errors['message']},
                             status=status.HTTP_400_BAD_REQUEST)
         else:
