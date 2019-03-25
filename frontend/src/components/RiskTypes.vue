@@ -239,6 +239,30 @@
         snackbarText: null,
         snackbarColor: null,
         submitted: false,
+        rules: {
+          'rangeRule': {
+            validate: (value) => {
+              const pattern = /^([0-9]+),\s([0-9]+)$/g;
+              return !! pattern.test(value);
+            },
+            getMessage: (field) => `The ${field} field must contain only 2 comma separated numbers!`,
+          },
+          'checkRange': {
+            validate: (value) => {
+              const pieces = value.split(', ');
+              return +pieces[0] < +pieces[1];
+            },
+            getMessage: (field) => `First value bigger than second!`
+          },
+          'optionsRule': {
+            validate: (value) => {
+              const pattern = /^[\w]+(, [\w]+)*$/g;
+              return !! pattern.test(value);
+            },
+            getMessage: (field) =>
+              `You need to provide 'option1, option2,...,optionN' comma separated values to ${field} field!`
+          }
+        }
       }
     },
     computed: {
@@ -327,9 +351,17 @@
         if ((value === 'select') || (value === 'checkbox') || (value === 'radio')
           || (value === 'range')) {
           this.formsetRows[index].optionDisabled = false;
+          // Add validators to each options field
+          if (value === 'range') {
+            this.$validator.attach({ name: `options${index}`, rules: 'rangeRule' });
+            this.$validator.fields.find({name:`options${index}`}).update({rules: 'required|rangeRule|checkRange'});
+          } else {
+            this.$validator.fields.find({name:`options${index}`}).update({rules: 'required|optionsRule'});
+          }
         } else {
           this.formsetRows[index].options = '';
           this.formsetRows[index].optionDisabled = true;
+          this.$validator.fields.find({name:`options${index}`}).reset();
           this.$validator.errors.remove(fieldName);
         }
       },
@@ -443,6 +475,10 @@
     },
     mounted () {
       this.getAllRiskTypes();
+      // Add rules
+      Object.keys(this.rules).forEach(rule => {
+        this.$validator.extend(rule, this.rules[rule]);
+      });
     },
   }
 </script>
