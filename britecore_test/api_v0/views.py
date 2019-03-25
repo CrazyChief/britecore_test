@@ -1,7 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import mixins
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -40,6 +40,7 @@ class RiskTypeViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
                             len(keys) != len(SCHEMA_ITEM_KEYS_UPDATE_2)):
                         correct_schema = False
                         flag = 'Incorrect schema item!'
+                        break
                     else:
                         for k in keys:
                             if (k not in DEFAULT_SCHEMA_ITEM_KEYS and
@@ -47,10 +48,7 @@ class RiskTypeViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
                                     k not in SCHEMA_ITEM_KEYS_UPDATE_2):
                                 correct_schema = False
                                 flag = 'Incorrect schema item!'
-                                return {
-                                    'correct_schema': correct_schema,
-                                    'message': flag
-                                }
+                                break
                     return {
                         'correct_schema': correct_schema,
                         'message': flag
@@ -63,14 +61,16 @@ class RiskTypeViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     def perform_create(self, serializer):
         errors = self.make_check(self.request.data['schema'])
         if errors['correct_schema'] is False:
-            return Response({'Error': errors['message']})
+            return Response({'Error': errors['message']},
+                            status=status.HTTP_400_BAD_REQUEST)
         else:
             serializer.save()
 
     def perform_update(self, serializer):
         errors = self.make_check(self.request.data['schema'])
         if errors['correct_schema'] is False:
-            return Response({'Error': errors['message']})
+            return Response({'Error': errors['message']},
+                            status=status.HTTP_400_BAD_REQUEST)
         else:
             serializer.save()
 

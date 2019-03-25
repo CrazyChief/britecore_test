@@ -229,16 +229,40 @@
           ],
         startFormsetRows: [
           // initial data
-          { field_name: '', field_type: '', options: '', optionDisabled: true, is_required: false }
+          { field_id: null, field_name: '', field_type: '', options: '', optionDisabled: true, is_required: false }
         ],
         formsetRows: [
           // initial data
-          { field_name: '', field_type: '', options: '', optionDisabled: true, is_required: false }
+          { field_id: null, field_name: '', field_type: '', options: '', optionDisabled: true, is_required: false }
         ],
         snackbar: false,
         snackbarText: null,
         snackbarColor: null,
         submitted: false,
+        rules: {
+          'rangeRule': {
+            validate: (value) => {
+              const pattern = /^([0-9]+),\s([0-9]+)$/g;
+              return !! pattern.test(value);
+            },
+            getMessage: (field) => `The ${field} field must contain only 2 comma separated numbers!`,
+          },
+          'checkRange': {
+            validate: (value) => {
+              const pieces = value.split(', ');
+              return +pieces[0] < +pieces[1];
+            },
+            getMessage: (field) => `First value bigger than second!`
+          },
+          'optionsRule': {
+            validate: (value) => {
+              const pattern = /^[\w]+(, [\w]+)*$/g;
+              return !! pattern.test(value);
+            },
+            getMessage: (field) =>
+              `You need to provide 'option1, option2,...,optionN' comma separated values to ${field} field!`
+          }
+        }
       }
     },
     computed: {
@@ -248,6 +272,9 @@
     },
     watch: {
       dialog (val) {
+        val || this.close()
+      },
+      editDialog (val) {
         val || this.close()
       }
     },
@@ -302,6 +329,7 @@
                   this.formsetRows[index][key] = false;
                 }
               }
+              this.formsetRows[index].field_id = null;
             });
           });
           this.editedIndex = -1;
@@ -311,7 +339,7 @@
       },
       addRow () {
         this.formsetRows.push(
-          { field_name: '', field_type: '', options: '', optionDisabled: true, is_required: false });
+          { field_id: null, field_name: '', field_type: '', options: '', optionDisabled: true, is_required: false });
       },
       removeRow (index) {
         this.formsetRows.splice(index, 1);
@@ -323,9 +351,17 @@
         if ((value === 'select') || (value === 'checkbox') || (value === 'radio')
           || (value === 'range')) {
           this.formsetRows[index].optionDisabled = false;
+          // Add validators to each options field
+          if (value === 'range') {
+            this.$validator.attach({ name: `options${index}`, rules: 'rangeRule' });
+            this.$validator.fields.find({name:`options${index}`}).update({rules: 'required|rangeRule|checkRange'});
+          } else {
+            this.$validator.fields.find({name:`options${index}`}).update({rules: 'required|optionsRule'});
+          }
         } else {
           this.formsetRows[index].options = '';
           this.formsetRows[index].optionDisabled = true;
+          this.$validator.fields.find({name:`options${index}`}).reset();
           this.$validator.errors.remove(fieldName);
         }
       },
@@ -349,6 +385,30 @@
           });
         }
       },
+      provideIDs(update=false) {
+        // Provide field id to each row in schema
+        if (update === false) {
+          this.formsetRows.forEach((item, index) => {
+            if (item.field_id === null) {
+              this.formsetRows[index].field_id = `field_${index}`;
+            }
+          });
+        } else {
+          let lastId = null;
+          for (let i = this.formsetRows.length - 1; i > 0; i--) {
+            if ((this.formsetRows[i].field_id !== undefined) && (this.formsetRows[i].field_id !== null)) {
+              lastId = +this.formsetRows[i].field_id.split('_')[1];
+              break;
+            }
+          }
+          if (lastId === null) lastId = 1;
+          this.formsetRows.forEach((item, index) => {
+            if (item.field_id === null) {
+              this.formsetRows[index].field_id = `field_${++lastId}`;
+            }
+          });
+        }
+      },
       handleSubmit() {
         // Makes form validation.
         if (this.formsetRows.length === 0) {
@@ -362,18 +422,21 @@
             this.riskType = Object.assign(this.riskType, { 'is_active': this.riskTypeActive });
             this.riskType = Object.assign(this.riskType, { 'schema': this.formsetRows });
             if (this.riskTypeId === null) {
+              this.provideIDs();
               // Send post request to the server in case validation passed.
               apiService.createRiskType(this.riskType)
                 .then((response) => {
                   if (response.status === 201) {
                     this.riskTypeItems.push(response.data);
                     this.showSnackbar('success', `You successfully created ${response.data.type_name} risk type`);
-                    this.close();
+                    this.provideRiskType(response.data);
+                    this.dialog = false;
                   }
                 }).catch((error) => {
                   this.showSnackbar('red', `${error}`);
                 });
             } else {
+              this.provideIDs(true);
               // Send put request to the server in case validation passed.
               apiService.updateRiskType(this.riskTypeId, this.riskType)
                 .then((response) => {
@@ -391,7 +454,7 @@
                         this.provideRiskType(this.riskTypeItems[index]);
                       }
                     });
-                    this.close()
+                    this.editDialog = false;
                   }
                 }).catch((error) => {
                   this.showSnackbar('red', `${error}`);
@@ -412,6 +475,10 @@
     },
     mounted () {
       this.getAllRiskTypes();
+      // Add rules
+      Object.keys(this.rules).forEach(rule => {
+        this.$validator.extend(rule, this.rules[rule]);
+      });
     },
   }
 </script>

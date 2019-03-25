@@ -1,4 +1,5 @@
 DEFAULT_SCHEMA_ITEM_KEYS = [
+    'field_id',
     'field_name',
     'field_type',
     'options',
@@ -9,6 +10,7 @@ SCHEMA_ITEM_KEYS_UPDATE_1 = DEFAULT_SCHEMA_ITEM_KEYS + ['value']
 SCHEMA_ITEM_KEYS_UPDATE_2 = SCHEMA_ITEM_KEYS_UPDATE_1 + ['generatedOptions']
 TEST_SCHEMA = [
     {
+        "field_id": None,
         "value": None,
         "options": "",
         "field_name": "first_name",
@@ -17,6 +19,7 @@ TEST_SCHEMA = [
         "optionDisabled": True
     },
     {
+        "field_id": None,
         "value": None,
         "options": "",
         "field_name": "email",
@@ -25,6 +28,7 @@ TEST_SCHEMA = [
         "optionDisabled": True
     },
     {
+        "field_id": None,
         "value": None,
         "options": "",
         "field_name": "phone",
@@ -33,6 +37,7 @@ TEST_SCHEMA = [
         "optionDisabled": True
     },
     {
+        "field_id": None,
         "value": None,
         "options": "",
         "field_name": "b_date",
@@ -41,6 +46,7 @@ TEST_SCHEMA = [
         "optionDisabled": True
     },
     {
+        "field_id": None,
         "value": None,
         "options": "",
         "field_name": "b_time",
@@ -49,6 +55,7 @@ TEST_SCHEMA = [
         "optionDisabled": True
     },
     {
+        "field_id": None,
         "value": None,
         "options": "",
         "field_name": "doc",
@@ -57,6 +64,7 @@ TEST_SCHEMA = [
         "optionDisabled": True
     },
     {
+        "field_id": None,
         "value": None,
         "options": "",
         "field_name": "instagram_link",
@@ -65,6 +73,7 @@ TEST_SCHEMA = [
         "optionDisabled": True
     },
     {
+        "field_id": None,
         "value": [11, 89],
         "options": "10, 90",
         "field_name": "lucky_numbers",
@@ -83,6 +92,7 @@ TEST_SCHEMA = [
         ]
     },
     {
+        "field_id": None,
         "value": None,
         "options": "",
         "field_name": "best_number",
@@ -91,6 +101,7 @@ TEST_SCHEMA = [
         "optionDisabled": True
     },
     {
+        "field_id": None,
         "value": None,
         "options": "traveling, "
                    "cooking, "
@@ -115,6 +126,7 @@ TEST_SCHEMA = [
         ]
     },
     {
+        "field_id": None,
         "value": None,
         "options": "no_bad_habbits, "
                    "smoking, "
@@ -139,6 +151,7 @@ TEST_SCHEMA = [
         ]
     },
     {
+        "field_id": None,
         "value": None,
         "options": "Mar, Apr, May",
         "field_name": "desired_month",
@@ -161,6 +174,7 @@ TEST_SCHEMA = [
         ]
     },
     {
+        "field_id": None,
         "value": None,
         "options": "",
         "field_name": "description",
@@ -172,6 +186,7 @@ TEST_SCHEMA = [
 
 TEST_RISK_DATA = [
     {
+        "field_id": 1,
         "value": "Dmitry",
         "options": "",
         "field_name": "first_name",
@@ -180,6 +195,7 @@ TEST_RISK_DATA = [
         "optionDisabled": True
     },
     {
+        "field_id": 2,
         "value": "danilovdmitry94@gmail.com",
         "options": "",
         "field_name": "email",
@@ -188,6 +204,7 @@ TEST_RISK_DATA = [
         "optionDisabled": True
     },
     {
+        "field_id": 3,
         "value": "0932812462",
         "options": "",
         "field_name": "phone",
@@ -196,6 +213,7 @@ TEST_RISK_DATA = [
         "optionDisabled": True
     },
     {
+        "field_id": 4,
         "value": "1994-04-24",
         "options": "",
         "field_name": "b_date",
@@ -204,6 +222,7 @@ TEST_RISK_DATA = [
         "optionDisabled": True
     },
     {
+        "field_id": 5,
         "value": "20:00",
         "options": "",
         "field_name": "b_time",
@@ -212,6 +231,7 @@ TEST_RISK_DATA = [
         "optionDisabled": True
     },
     {
+        "field_id": 6,
         "value": None,
         "options": "",
         "field_name": "doc",
@@ -220,6 +240,7 @@ TEST_RISK_DATA = [
         "optionDisabled": True
     },
     {
+        "field_id": 7,
         "value": "https://www.instagram.com/______dmitry/",
         "options": "",
         "field_name": "instagram_link",
@@ -228,6 +249,7 @@ TEST_RISK_DATA = [
         "optionDisabled": True
     },
     {
+        "field_id": 8,
         "value": [11, 89],
         "options": "10, 90",
         "field_name": "lucky_numbers",
@@ -246,6 +268,7 @@ TEST_RISK_DATA = [
         ]
     },
     {
+        "field_id": 9,
         "value": "6",
         "options": "",
         "field_name": "best_number",
@@ -254,6 +277,7 @@ TEST_RISK_DATA = [
         "optionDisabled": True
     },
     {
+        "field_id": 10,
         "value": None,
         "options": "traveling, cooking, dancing",
         "field_name": "hobbies",
@@ -276,6 +300,7 @@ TEST_RISK_DATA = [
         ]
     },
     {
+        "field_id": 11,
         "value": 0,
         "options": "no_bad_habbits, smoking, smth_else",
         "field_name": "bad_habbits",
@@ -298,6 +323,7 @@ TEST_RISK_DATA = [
         ]
     },
     {
+        "field_id": 12,
         "value": 0,
         "options": "Mar, Apr, May",
         "field_name": "desired_month",
@@ -320,6 +346,7 @@ TEST_RISK_DATA = [
         ]
     },
     {
+        "field_id": 13,
         "value": "Lorem Ipsum is simply dummy text of the printing and...",
         "options": "",
         "field_name": "description",
