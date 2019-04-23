@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import axios from 'axios';
 import VueAxios from 'vue-axios';
+import Cookies from 'js-cookie';
 import { API_URL } from "./config";
 
 export class APIService {
@@ -8,6 +9,9 @@ export class APIService {
   constructor() {
     Vue.use(VueAxios, axios);
     Vue.axios.defaults.baseURL = API_URL;
+    Vue.axios.defaults.headers = {
+      'X-CSRFToken': Cookies.get('csrftoken')
+    }
   }
 
   getAllRiskTypes() {
